@@ -8,7 +8,7 @@ from numpy import array, eye, concatenate, zeros, empty, matmul, append, flatnon
 
 # O arredondamento dos resultados pode não produzir zero, mas um valor ínfimo que deve ser tratado 
 # como zero, pois pode quebrar o algoritmo (seria zero não fosse o erro de arredondamento da máquina).
-INFIMO = 1e-12
+INFIMO = 1e-14
 
 # Trocar coluna básica por coluna não-básica no Tableau.
 # Retorna o Tableau atualizado.
