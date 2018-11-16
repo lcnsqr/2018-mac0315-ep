@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import numpy
 
 from numpy import array, eye, concatenate, zeros, empty, matmul, append, flatnonzero, ones
 
@@ -18,11 +19,14 @@ def tabTrocar(T, l, c):
     Q = eye(m)
     for i in range(m):
         if i == l:
+            # Inverso do pivô, resultará em 1.
             Q[i,l] = 1/T[l,c]
         else:
+            # Componente da solução básica dividida pela componente correspondente 
+            # na coluna que entra (negativo). Resultará em zero.
             Q[i,l] = -T[i,c]/T[l,c]
 
-    # Retornar Tableau atualizado
+    # Retornar Tableau atualizado pela matriz de conversão Q
     return matmul(Q, T)
 
 # Identificar coluna no Tableau que entra na base.
@@ -32,14 +36,17 @@ def tabTrocar(T, l, c):
 # N: Lista dos índices não-básicos
 # s: Sentido do PL: -1 é maximização e 1 é minimização
 def tabEntra(T, N, s):
-    # Quantidade de colunas no Tableau
+    # Quantidade de colunas no Tableau.
     n = T.shape[1]
+    # Regra de Bland para evitar ciclagem.
+    # Ordenar o conjunto dos índices não-básicos.
     N.sort()
+    # Percorrer o vetor de custos reduzidos, na primeira 
+    # linha do Tableau e a partir da segunda coluna.
     for i in N:
-        # Regra de Bland para evitar ciclagem.
-        # Tomar a primeira coluna que apresenta melhora.
+        # Pela ordem, verificar se algum custo reduzido melhora a função objetivo.
         if s * T[0,i + 1] < 0:
-            # Custo reduzido da i-ésima coluna melhora a função objetivo
+            # Custo reduzido da i-ésima coluna melhora a função objetivo.
             return i + 1
     # Retorna -1 se nenhum custo reduzido melhora a função objetivo
     return -1
@@ -50,25 +57,32 @@ def tabEntra(T, N, s):
 # T: Tableau Simplex
 # c: Índice da coluna no Tableau correspondente à direção viável (coluna que entra)
 def tabSai(T, c):
-    # Quantidade de linhas no Tableau
+    # Quantidade de linhas no Tableau.
     m = T.shape[0]
-    # Avaliar apenas para os componentes positivos da direção viável
+    # Avaliar apenas para os componentes positivos da direção viável.
+    # Conjunto L armazena os índices das linhas onde o valor da direção viável é positivo.
     L = empty(0, dtype=int)
     for i in range(1,m):
         if T[i,c] > 0:
             L = append(L, i)
-    # Determinar coluna que sai pelo critério da razão
+    # Determinar coluna que sai pelo critério da razão, usando 
+    # como denominador os valores positivos da direção viável.
     if len(L) > 0:
-        # Existe componente positivo
+        # Existe pelo menos uma componente positiva na direção.
+        # É o índice escolhido se não houverem outros.
         l = L[0]
+        # Comparar com demais componentes positivas (se houverem).
         if len(L) > 1:
-            # Comparar com demais componentes positivos
             for i in L[1:]:
-                # Critério da razão
+                # Trocar o índice escolhido se satisfizer o critério da razão.
                 if T[i,0]/T[i,c] < T[l,0]/T[l,c]:
                     l = i
+        #print("###### Pivot encagalhou:");
+        #print (T[l,c])
+        #numpy.savetxt(sys.stdout, T[:,c], '%5.11f')
         return l 
     else:
+        # Não existe componente positiva.
         # Direção viável melhora mas é ilimitada
         return -1
 
