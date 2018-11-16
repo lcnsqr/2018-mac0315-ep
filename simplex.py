@@ -6,6 +6,10 @@ import numpy
 
 from numpy import array, eye, concatenate, zeros, empty, matmul, append, flatnonzero, ones
 
+# O arredondamento dos resultados pode não produzir zero, mas um valor ínfimo que deve ser tratado 
+# como zero, pois pode quebrar o algoritmo (seria zero não fosse o erro de arredondamento da máquina).
+INFIMO = 1e-12
+
 # Trocar coluna básica por coluna não-básica no Tableau.
 # Retorna o Tableau atualizado.
 # Parâmetros:
@@ -45,7 +49,7 @@ def tabEntra(T, N, s):
     # linha do Tableau e a partir da segunda coluna.
     for i in N:
         # Pela ordem, verificar se algum custo reduzido melhora a função objetivo.
-        if s * T[0,i + 1] < 0:
+        if s * T[0,i + 1] < 0 and abs(T[0,i + 1]) > INFIMO:
             # Custo reduzido da i-ésima coluna melhora a função objetivo.
             return i + 1
     # Retorna -1 se nenhum custo reduzido melhora a função objetivo
@@ -63,7 +67,8 @@ def tabSai(T, c):
     # Conjunto L armazena os índices das linhas onde o valor da direção viável é positivo.
     L = empty(0, dtype=int)
     for i in range(1,m):
-        if T[i,c] > 0:
+        # Incluir valor positivo
+        if T[i,c] > INFIMO:
             L = append(L, i)
     # Determinar coluna que sai pelo critério da razão, usando 
     # como denominador os valores positivos da direção viável.
@@ -77,13 +82,11 @@ def tabSai(T, c):
                 # Trocar o índice escolhido se satisfizer o critério da razão.
                 if T[i,0]/T[i,c] < T[l,0]/T[l,c]:
                     l = i
-        #print("###### Pivot encagalhou:");
-        #print (T[l,c])
-        #numpy.savetxt(sys.stdout, T[:,c], '%5.11f')
         return l 
     else:
         # Não existe componente positiva.
         # Direção viável melhora mas é ilimitada
+        print(T[:,c])
         return -1
 
 # Iterar no Tableau até um critério de parada.
