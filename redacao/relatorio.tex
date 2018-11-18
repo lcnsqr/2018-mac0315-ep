@@ -1,0 +1,224 @@
+\documentclass[10pt,oneside,a4paper]{article}
+\usepackage[english,portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage[fixlanguage]{babelbib}
+\usepackage{url}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\usepackage{setspace}
+\onehalfspacing
+
+%\usepackage[nottoc,notlot,notlof]{tocbibind}
+\hypersetup{pdftitle={MAC0315-2018 EP: Simplex}}
+\hypersetup{pdfauthor={Luciano Antonio Siqueira}}
+\hypersetup{pdfsubject={Discretização para um PL e implementação do método Simplex}}
+\hypersetup{pdfkeywords={otimização linear,simplex,discretização,python}}
+
+\title{MAC0315-2018 EP: Simplex}
+\author{Luciano Antonio Siqueira NUSP: 8535467}
+\date{}
+
+\begin{document}
+ 
+\maketitle
+
+O problema de otimização
+
+\begin{equation}
+\label{c0}
+min \int_{0}^{T}|a(s)|ds
+\end{equation}
+
+\noindent
+sujeito a
+
+\begin{equation}
+\label{c1}
+v(t) = v(0) + \int_{0}^{t}a(s)ds, \forall t \in [0,T]
+\end{equation}
+
+\begin{equation}
+\label{c2}
+x(t) = x(0) + \int_{0}^{t}v(s)ds, \forall t \in [0,T]
+\end{equation}
+
+\begin{equation}
+\label{c3}
+v(0) = 0, v(T) = 0, x(0) = 0, x(T) = 1
+\end{equation}
+
+\noindent
+pode ser discretizado dividindo o intervalo $T$ em subintervalos, de modo que o cálculo das integrais é substituído por aproximações em cada um desses subintervalos.
+
+\section{Discretização}
+
+Tomando $d \ge 2$ como o número de subintervalos, a função em (\ref{c0}) pode ser substituída por
+
+\begin{equation}
+\label{d0}
+min \sum_{i=0}^{d}|a_i|
+\end{equation}
+
+\noindent
+e as restrições (\ref{c1}), (\ref{c2}) e (\ref{c3}) podem ser substituídas por
+
+\begin{equation}
+\label{d1}
+v_{i+1} = v_i + \rho a_i, \forall i \in \{0, \dotsm, d-1\}
+\end{equation}
+
+\begin{equation}
+\label{d2}
+x_{i+1} = x_i + \rho v_i, \forall i \in \{0, \dotsm, d-1\}
+\end{equation}
+
+\begin{equation}
+\label{d3}
+v_0 = 0, v_d = 0, x_0 = 0, x_d = 1
+\end{equation}
+
+\noindent
+onde $\rho$ é o tamanho do subintervalo, definido por $\rho = \frac{T}{d}$. Em particular, a restrição (\ref{d2}) pode ser reescrita como
+
+\[ 
+x_{i+1} = x_i + \rho (v_{i+1} - \rho a_i) = x_i + \rho v_{i+1} - \rho^2 a_i, \forall i \in \{0, \dotsm, d-1\}
+\]
+
+\noindent
+pois (\ref{d1}) implica que $ v_i = v_{i+1} - \rho a_i $.
+
+A princípio, o problema possui três grupos de variáveis: $ a_i $, $ v_i $ e $ x_i $, mas apenas as variáveis $ a_i $ possuem coeficientes não nulos na função objetivo. As variáveis $ v_i $ e $ x_i $ atuam apenas nas restrições do problema.
+
+A matriz de restrições correspondente a (\ref{d1}), (\ref{d2}) e (\ref{d3}) possuirá $ 2d+4 $ linhas e $ 3d+2 $ colunas. Por exemplo, para um número de subintervalos $ d=2 $, a forma matricial das restrições é dada por
+
+\begin{equation}
+\begin{pmatrix}
+\rho & 0 & 1 & -1 & 0 & 0 & 0  & 0 \\
+-\rho^2 & 0 & 0 & \rho & 0 & 1 & -1 & 0 \\
+0 & \rho & 0 & 1 & -1 & 0 & 0 & 0  \\
+0 & -\rho^2 & 0 & 0 & \rho & 0 & 1 & -1 \\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1
+\end{pmatrix}
+.
+\begin{pmatrix}
+a_0 \\
+a_1 \\
+v_0 \\
+v_1 \\
+v_2 \\
+x_0 \\
+x_1 \\
+x_2 
+\end{pmatrix}
+=
+\begin{pmatrix}
+0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 1
+\end{pmatrix}
+\label{matricial}
+\end{equation}
+
+A variável $ a_d $ não aparece nas restrições. Seu valor é considerado nulo, pois não interfere na solução de interesse: a minimização da aceleração antes de chegar no instante final $T$.
+
+\subsection{Tratamento do módulo e variáveis irrestritas}
+
+Para lidar com a minimização dos valores absolutos na função objetivo, as variáveis $ |a_i| $ são substituídas por um número correspondente de variáveis $ z_i $: 
+
+\[
+min \sum_{i=0}^{d}z_i
+\]
+
+\noindent
+e duas novas restrições são incluídas para cada $i = 1, \cdots, d$ :
+
+\[
+z_i \ge a_i
+\] 
+\[
+z_i \ge -a_i
+\] 
+
+\noindent
+sendo $z_i \ge 0$. Já as variáveis $a_i$ são irrestritas e por isso serão substituídas pelas variáveis $a_i^+ \ge 0$ e $a_i^- \ge 0$, tal que $a_i = a_i^+ - a_i^-$. Desse modo, as restrições para o problema ficam dadas por:
+
+\[ v_{i+1} = v_i + \rho (a_i^+ - a_i^-), \forall i \in \{0, \dotsm, d-1\} \]
+\[ x_{i+1} = x_i + \rho v_{i+1} - \rho^2 (a_i^+ - a_i^-), \forall i \in \{0, \dotsm, d-1\} \]
+\[ v_0 = 0, v_d = 0, x_0 = 0, x_d = 1 \]
+\[ z_i \ge (a_i^+ - a_i^-), \forall i \in \{0, \dotsm, d-1\} \]
+\[ z_i \ge -(a_i^+ - a_i^-), \forall i \in \{0, \dotsm, d-1\} \]
+\[ a_i^+, a_i^-, v_i, x_i, z_i \ge 0, \forall i \in \{0, \dotsm, d\} \]
+
+A nova forma matricial é obtida estendendo a forma exemplificada em (\ref{matricial}) para adequar-se às novas restrições, resultando numa matriz com $ 4d+4 $ linhas e $ 5d+2 $ colunas. Por fim, são incluídas as variáveis de folga para cada restrição de desigualdade, aumentando o número de colunas da matriz de restrição para $ 7d+2 $.
+
+\section{Implementação}
+
+O programa foi implementado em linguagem \emph{Python}. O arquivo \texttt{ep.py} contém os procedimentos para construir o problema e o arquivo \texttt{simplex.py} contém a implementação do algoritmo de duas fases dos Simplex, invocado automaticamente quando \texttt{ep.py} é executado.
+
+A quantidade de intervalos $d$ utilizada na discretização do problema é informada como parâmetro do comando \texttt{ep.py}. Por exemplo, se o comando for invocado na forma \texttt{./ep.py 8}, então o tempo será discretizado em 8 partes.
+
+A saída do programa é dividida em 4 colunas, separadas por um caractere de tabulação. Na primeira coluna estão os tempos discretizados e nas colunas seguintes estão \emph{a(t)}, \emph{v(t)} e \emph{x(t)} correspondentes a cada intervalo de tempo na primeira coluna. Na última linha da saída é exibido o valor ótimo para a discretização solicitada. A saída produzida pelo comando \texttt{./ep.py 8} será:
+
+\begin{verbatim}
+t       a(t)    v(t)    x(t)
+0,00    0,091429        0,000000        0,000000
+1,25    0,000000        0,114286        0,285714
+2,50    0,000000        0,114286        0,428571
+3,75    0,000000        0,114286        0,571429
+5,00    0,000000        0,114286        0,714286
+6,25    0,000000        0,114286        0,857143
+7,50    0,000000        0,114286        1,000000
+8,75    -0,091429       0,114286        1,142857
+10,00   0,000000        0,000000        1,000000
+Valor ótimo: 0.182857
+\end{verbatim}
+
+\section{Resultados}
+
+Foram feitas diversas discretizações, cujos resultados estão ilustrados nos gráficos a seguir. As soluções ficaram dentro do esperado, pois observa-se que uma aceleração é aplicada no início para impulsionar o foguete e uma aceleração negativa equivalente é aplicada no fim, parando o foguete.
+
+Apesar do valor ótimo ser melhor quando é utilizado um número menor de subintervalos de discretização, é esperado que o erro na aproximação das integrais seja grande quando são utilizados subintervalos de tempo muito grandes. Por isso, valores mais confiáveis são obtidos quanto maior for o número de subintervalos utilizados na discretização.
+
+\bigskip
+
+\noindent
+\includegraphics[width=1\linewidth]{graficos/grafico_2}
+\includegraphics[width=1\linewidth]{graficos/grafico_3}
+\includegraphics[width=1\linewidth]{graficos/grafico_4}
+\includegraphics[width=1\linewidth]{graficos/grafico_5}
+\includegraphics[width=1\linewidth]{graficos/grafico_6}
+\includegraphics[width=1\linewidth]{graficos/grafico_7}
+\includegraphics[width=1\linewidth]{graficos/grafico_8}
+\includegraphics[width=1\linewidth]{graficos/grafico_9}
+\includegraphics[width=1\linewidth]{graficos/grafico_10}
+\includegraphics[width=1\linewidth]{graficos/grafico_11}
+\includegraphics[width=1\linewidth]{graficos/grafico_12}
+\includegraphics[width=1\linewidth]{graficos/grafico_13}
+\includegraphics[width=1\linewidth]{graficos/grafico_14}
+\includegraphics[width=1\linewidth]{graficos/grafico_15}
+\includegraphics[width=1\linewidth]{graficos/grafico_16}
+\includegraphics[width=1\linewidth]{graficos/grafico_17}
+\includegraphics[width=1\linewidth]{graficos/grafico_18}
+\includegraphics[width=1\linewidth]{graficos/grafico_19}
+\includegraphics[width=1\linewidth]{graficos/grafico_20}
+\includegraphics[width=1\linewidth]{graficos/grafico_21}
+\includegraphics[width=1\linewidth]{graficos/grafico_22}
+\includegraphics[width=1\linewidth]{graficos/grafico_23}
+\includegraphics[width=1\linewidth]{graficos/grafico_24}
+\includegraphics[width=1\linewidth]{graficos/grafico_25}
+\includegraphics[width=1\linewidth]{graficos/grafico_26}
+\includegraphics[width=1\linewidth]{graficos/grafico_27}
+\includegraphics[width=1\linewidth]{graficos/grafico_28}
+\includegraphics[width=1\linewidth]{graficos/grafico_29}
+\includegraphics[width=1\linewidth]{graficos/grafico_30}
+\includegraphics[width=1\linewidth]{graficos/grafico_31}
+\includegraphics[width=1\linewidth]{graficos/grafico_32}
+\includegraphics[width=1\linewidth]{graficos/grafico_33}
+
+\end{document}
