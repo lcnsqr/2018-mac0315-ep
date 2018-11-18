@@ -56,8 +56,8 @@ for i in range(d):
     A[2*i,2*d+i+1] = -1
     # Segunda linha do i-ésimo par de restrições
     # a
-    A[2*i+1,2*i] = -p**2
-    A[2*i+1,2*i+1] = p**2
+    A[2*i+1,2*i] = p**2
+    A[2*i+1,2*i+1] = -p**2
     # v
     A[2*i+1,2*d+i+1] = p
     # x
@@ -143,4 +143,7 @@ for i in range(d):
     f = f + abs(a[i])
 
 # Para confecção dos gráficos
-print >> sys.stderr, 's/%d%/{:d}/g\ns/%f%/{:.3f}/g'.format(d, f).replace('.', ',')
+#print >> sys.stderr, 's/%d%/{:d}/g\ns/%f%/{:.3f}/g'.format(d, f).replace('.', ',')
+
+# Valor ótimo da função objetivo
+print('Valor ótimo: {:.6f}'.format(f))
