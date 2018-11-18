@@ -135,10 +135,12 @@ x = y[3*d+1:4*d+2]
 # Exibir o resultado em quatro colunas: t, a(t), v(t), x(t)
 print("t\ta(t)\tv(t)\tx(t)")
 for i in range(d+1):
-    print('{:.6f}\t{:.6f}\t{:.6f}\t{:.6f}'.format(i*p, a[i], v[i], x[i]))
+    print('{:.2f}\t{:.6f}\t{:.6f}\t{:.6f}'.format(i*p, a[i], v[i], x[i]).replace('.', ','))
 # Valor ótimo da função objetivo.
 # Soma dos valores absolutos do vetor "a"
 f = 0
 for i in range(d):
     f = f + abs(a[i])
-print >> sys.stderr, 'Valor ótimo: {:.6f}'.format(f)
+
+# Para confecção dos gráficos
+print >> sys.stderr, 's/%d%/{:d}/g\ns/%f%/{:.3f}/g'.format(d, f).replace('.', ',')
