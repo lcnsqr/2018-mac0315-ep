@@ -27,4 +27,4 @@ set decimalsign locale
 set output 'graficos/grafico_%d%.svg'
 #plot "tabulado.dat" u 2:xtic(1) w lp linestyle 1, "" u 3 w lp linestyle 2, "" u 4 w lp linestyle 3
 #plot "tabulado.dat" u 2:xtic(1) w lp linestyle 1
-plot "tabulado.dat" u 2:xtic(1) w lp linestyle 1, "" u 3 w lp linestyle 2
+plot "tabulado_%d%.dat" u 2:xtic(1) w lp linestyle 1, "" u 3 w lp linestyle 2
