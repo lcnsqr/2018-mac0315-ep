@@ -83,14 +83,7 @@ v_0 = 0, v_d = 0, x_0 = 0, x_d = 1
 \end{equation}
 
 \noindent
-onde $\rho$ é o tamanho do subintervalo, definido por $\rho = \frac{T}{d}$. Em particular, a restrição (\ref{d2}) pode ser reescrita como
-
-\[ 
-x_{i+1} = x_i + \rho (v_{i+1} - \rho a_i) = x_i + \rho v_{i+1} - \rho^2 a_i, \forall i \in \{0, \dotsm, d-1\}
-\]
-
-\noindent
-pois (\ref{d1}) implica que $ v_i = v_{i+1} - \rho a_i $.
+onde $\rho$ é o tamanho do subintervalo, definido por $\rho = \frac{T}{d}$.
 
 A princípio, o problema possui três grupos de variáveis: $ a_i $, $ v_i $ e $ x_i $, mas apenas as variáveis $ a_i $ possuem coeficientes não nulos na função objetivo. As variáveis $ v_i $ e $ x_i $ atuam apenas nas restrições do problema.
 
@@ -99,9 +92,9 @@ A matriz de restrições correspondente a (\ref{d1}), (\ref{d2}) e (\ref{d3}) po
 \begin{equation}
 \begin{pmatrix}
 \rho & 0 & 1 & -1 & 0 & 0 & 0  & 0 \\
--\rho^2 & 0 & 0 & \rho & 0 & 1 & -1 & 0 \\
+0 & 0 & \rho & 0 & 0 & 1 & -1 & 0 \\
 0 & \rho & 0 & 1 & -1 & 0 & 0 & 0  \\
-0 & -\rho^2 & 0 & 0 & \rho & 0 & 1 & -1 \\
+0 & 0 & 0 & \rho & 0 & 0 & 1 & -1 \\
 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
@@ -149,7 +142,7 @@ z_i \ge -a_i
 sendo $z_i \ge 0$. Já as variáveis $a_i$ são irrestritas e por isso serão substituídas pelas variáveis $a_i^+ \ge 0$ e $a_i^- \ge 0$, tal que $a_i = a_i^+ - a_i^-$. Desse modo, as restrições para o problema ficam dadas por:
 
 \[ v_{i+1} = v_i + \rho (a_i^+ - a_i^-), \forall i \in \{0, \dotsm, d-1\} \]
-\[ x_{i+1} = x_i + \rho v_{i+1} - \rho^2 (a_i^+ - a_i^-), \forall i \in \{0, \dotsm, d-1\} \]
+\[ x_{i+1} = x_i + \rho v_i, \forall i \in \{0, \dotsm, d-1\} \]
 \[ v_0 = 0, v_d = 0, x_0 = 0, x_d = 1 \]
 \[ z_i \ge (a_i^+ - a_i^-), \forall i \in \{0, \dotsm, d-1\} \]
 \[ z_i \ge -(a_i^+ - a_i^-), \forall i \in \{0, \dotsm, d-1\} \]
@@ -168,13 +161,13 @@ A saída do programa é dividida em 4 colunas, separadas por um caractere de tab
 \begin{verbatim}
 t       a(t)    v(t)    x(t)
 0,00    0,091429        0,000000        0,000000
-1,25    0,000000        0,114286        0,285714
-2,50    0,000000        0,114286        0,428571
-3,75    0,000000        0,114286        0,571429
-5,00    0,000000        0,114286        0,714286
-6,25    0,000000        0,114286        0,857143
-7,50    0,000000        0,114286        1,000000
-8,75    -0,091429       0,114286        1,142857
+1,25    0,000000        0,114286        0,000000
+2,50    0,000000        0,114286        0,142857
+3,75    0,000000        0,114286        0,285714
+5,00    0,000000        0,114286        0,428571
+6,25    0,000000        0,114286        0,571429
+7,50    0,000000        0,114286        0,714286
+8,75    -0,091429       0,114286        0,857143
 10,00   0,000000        0,000000        1,000000
 Valor ótimo: 0.182857
 \end{verbatim}
