@@ -55,11 +55,8 @@ for i in range(d):
     A[2*i,2*d+i] = 1
     A[2*i,2*d+i+1] = -1
     # Segunda linha do i-ésimo par de restrições
-    # a
-    A[2*i+1,2*i] = p**2
-    A[2*i+1,2*i+1] = -p**2
     # v
-    A[2*i+1,2*d+i+1] = p
+    A[2*i+1,2*d+i] = p
     # x
     A[2*i+1,3*d+1+i] = 1
     A[2*i+1,3*d+2+i] = -1
